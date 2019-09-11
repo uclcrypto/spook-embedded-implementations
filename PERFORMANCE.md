@@ -15,10 +15,10 @@ To minimize the code size, the proposed implementation is compiled with the flag
 
  | |Cortex-M0|Cortex-M3|
 |-|-|-|
-|Code size (Byte)|3620|52.30|
-|Clyde (cycle)|3374|1876|
-|Shadow (cycle)|8626|5611|
-|Spook (cycle/byte)|312|197|
+|Code size (Bytes)|3620|52.30|
+|Clyde (Cycles)|3374|1876|
+|Shadow (Cycles)|8626|5611|
+|Spook (Cycles per Byte)|312|197|
 
 ## Speed
 
@@ -26,7 +26,7 @@ To minimize the number of cycles, the proposed implementation is compiled with t
 
  | |Cortex-M0|Cortex-M3|
 |-|-|-|
-|Code size (Byte)|11024|7320|
-|Clyde (cycle)|2450|944|
-|Shadow (cycle)|6286|2360|
-|Spook (cycle/byte)|218|85.6|
+|Code size (Bytes)|11024|7320|
+|Clyde (Cycles)|2450|944|
+|Shadow (Cycles)|6286|2360|
+|Spook (Cycles per Byte)|218|85.6|
