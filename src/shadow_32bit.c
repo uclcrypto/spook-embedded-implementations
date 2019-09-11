@@ -32,23 +32,6 @@
 #define SHADOW_NR 2 * SHADOW_NS       // Number of rounds
 
 
-// Round constants for Clyde-128
-static const uint32_t clyde128_rc[CLYDE_128_NR][LS_ROWS] = {
-  { 1, 0, 0, 0 }, // 0
-  { 0, 1, 0, 0 }, // 1
-  { 0, 0, 1, 0 }, // 2
-  { 0, 0, 0, 1 }, // 3
-  { 1, 1, 0, 0 }, // 4
-  { 0, 1, 1, 0 }, // 5
-  { 0, 0, 1, 1 }, // 6
-  { 1, 1, 0, 1 }, // 7
-  { 1, 0, 1, 0 }, // 8
-  { 0, 1, 0, 1 }, // 9
-  { 1, 1, 1, 0 }, // 10
-  { 0, 1, 1, 1 }  // 11
-};
-
-
 // Apply a S-box layer to a Clyde-128 state.
 static void sbox_layer(uint32_t* state) {
   uint32_t y1 = (state[0] & state[1]) ^ state[2];
@@ -120,7 +103,7 @@ static void dbox_mls_layer(shadow_state state) {
 
 // Shadow permutation. Updates state.
 void shadow(shadow_state state) {
-    uint32_t lfsr = 0x8;	 
+    uint32_t lfsr = 0x8;
     for (unsigned int s = 0; s < SHADOW_NS; s++) {
         for (unsigned int b = 0; b < MLS_BUNDLES; b++) {
             sbox_layer(state[b]);
@@ -130,14 +113,14 @@ void shadow(shadow_state state) {
             sbox_layer(state[b]);
         }
 
-        uint32_t b = lfsr & 0x1;        
+        uint32_t b = lfsr & 0x1;
         lfsr = (lfsr^(b<<3) | b<<4)>>1;	// update LFSR
 
         dbox_mls_layer(state);
         for (unsigned int b = 0; b < MLS_BUNDLES; b++) {
             XORCST(state[b], lfsr, b);
-        }	  
-        b = lfsr & 0x1;                 
+        }
+        b = lfsr & 0x1;
         lfsr = (lfsr^(b<<3) | b<<4)>>1; // update LFSR
     }
 }

@@ -28,22 +28,6 @@
 #define CLYDE_128_NS 6                // Number of steps
 #define CLYDE_128_NR 2 * CLYDE_128_NS // Number of rounds
 
-// Round constants for Clyde-128
-static const uint32_t clyde128_rc[CLYDE_128_NR][LS_ROWS] = {
-  { 1, 0, 0, 0 }, // 0
-  { 0, 1, 0, 0 }, // 1
-  { 0, 0, 1, 0 }, // 2
-  { 0, 0, 0, 1 }, // 3
-  { 1, 1, 0, 0 }, // 4
-  { 0, 1, 1, 0 }, // 5
-  { 0, 0, 1, 1 }, // 6
-  { 1, 1, 0, 1 }, // 7
-  { 1, 0, 1, 0 }, // 8
-  { 0, 1, 0, 1 }, // 9
-  { 1, 1, 1, 0 }, // 10
-  { 0, 1, 1, 1 }  // 11
-};
-
 
 // Apply a S-box layer to a Clyde-128 state.
 static void sbox_layer(uint32_t* state) {
@@ -105,21 +89,21 @@ void clyde128_encrypt(clyde128_state state, const clyde128_state t, const unsign
 	// Datapath
 	XORLS(state, tk[0]);
 	uint32_t off = 0x924;		// 2-bits describing the round key
-	uint32_t lfsr = 0x8;		// LFSR for round constant	
+	uint32_t lfsr = 0x8;		// LFSR for round constant
 	for (uint32_t s = 0; s < CLYDE_128_NS; s++) {
 		sbox_layer(state);
 		lbox(&state[0], &state[1]);
 		lbox(&state[2], &state[3]);
 		XORCST(state,lfsr);
-		uint32_t b = lfsr & 0x1;        
+		uint32_t b = lfsr & 0x1;
 		lfsr = (lfsr^(b<<3) | b<<4)>>1;	// update LFSR
 
 		sbox_layer(state);
 		lbox(&state[0], &state[1]);
 		lbox(&state[2], &state[3]);
 		XORCST(state,lfsr);
-		b = lfsr & 0x1;               
-		lfsr = (lfsr^(b<<3) | b<<4)>>1; // update LFSR     
+		b = lfsr & 0x1;
+		lfsr = (lfsr^(b<<3) | b<<4)>>1; // update LFSR
 		off >>=2;
 		XORLS(state, tk[off&0x03]);
 	}

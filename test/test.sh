@@ -35,6 +35,6 @@ test_build_spook 1 0 410c79bf206274bf6145103d1e87c20e17d258cd77c550fd0d33ef30a97
 test_build_spook 1 1 53d431a078490a709767c0089614fcda87218f11e97ab565d2e84f25bbfcd9cc
 }
 
-export CLYDE_TYPE=clyde_$ctype;
-export SHADOW_TYPE=shadow_$stype;
+export CLYDE_TYPE=clyde_32bit;
+export SHADOW_TYPE=shadow_32bit;
 test_all_spook_versions;

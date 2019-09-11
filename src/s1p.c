@@ -23,10 +23,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
-
+#include "primitives.h"
 #include "s1p.h"
 #include "parameters.h"
-#include "primitives.h"
 
 #define CAPACITY_BYTES 32
 #define RATE_BYTES (SHADOW_NBYTES - CAPACITY_BYTES)
