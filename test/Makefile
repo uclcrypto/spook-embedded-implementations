@@ -23,7 +23,7 @@ ifeq "$(SHADOW_TYPE)" "shadow_512bit"
     CFLAGS+=-mavx512f
 endif
 
-objects := s1p.o genkat_aead.o encrypt.o $(CLYDE_TYPE).o $(SHADOW_TYPE).o
+objects := s1p.o genkat_aead.o encrypt.o primitives.o $(CLYDE_TYPE).o $(SHADOW_TYPE).o
 
 all: $(BDIR)/test
 

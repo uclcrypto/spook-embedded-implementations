@@ -22,44 +22,11 @@
  */
 #include <string.h>
 #include <stdint.h>
-
 #include "primitives.h"
 
 #define CLYDE_128_NS 6                // Number of steps
 #define CLYDE_128_NR 2 * CLYDE_128_NS // Number of rounds
 
-
-// Apply a S-box layer to a Clyde-128 state.
-static void sbox_layer(uint32_t* state) {
-  uint32_t y1 = (state[0] & state[1]) ^ state[2];
-  uint32_t y0 = (state[3] & state[0]) ^ state[1];
-  uint32_t y3 = (y1 & state[3]) ^ state[0];
-  uint32_t y2 = (y0 & y1) ^ state[3];
-  state[0] = y0;
-  state[1] = y1;
-  state[2] = y2;
-  state[3] = y3;
-}
-
-// Apply a L-box to a pair of Clyde-128 rows.
-#define ROT32(x,n) ((uint32_t)(((x)>>(n))|((x)<<(32-(n)))))
-static void lbox(uint32_t* x, uint32_t* y) {
-  uint32_t a, b, c, d;
-  a = *x ^ ROT32(*x, 12);
-  b = *y ^ ROT32(*y, 12);
-  a = a ^ ROT32(a, 3);
-  b = b ^ ROT32(b, 3);
-  a = a ^ ROT32(*x, 17);
-  b = b ^ ROT32(*y, 17);
-  c = a ^ ROT32(a, 31);
-  d = b ^ ROT32(b, 31);
-  a = a ^ ROT32(d, 26);
-  b = b ^ ROT32(c, 25);
-  a = a ^ ROT32(c, 15);
-  b = b ^ ROT32(d, 15);
-  *x = a;
-  *y = b;
-}
 
 #define XORLS(DEST, OP) do { \
 	(DEST)[0] ^= (OP)[0]; \

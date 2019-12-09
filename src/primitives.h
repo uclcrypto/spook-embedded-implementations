@@ -31,7 +31,7 @@
 #define CLYDE_TYPE "clyde_32bit.c"
 #define SHADOW_TYPE "shadow_128bit.c"
 
-
+#define ROT32(x,n) ((uint32_t)(((x)>>(n))|((x)<<(32-(n)))))
 typedef __attribute__((aligned(16))) uint32_t clyde128_state[LS_ROWS];
 typedef __attribute__((aligned(64))) clyde128_state shadow_state[MLS_BUNDLES];
 
@@ -39,6 +39,8 @@ void clyde128_encrypt(clyde128_state state,
                       const clyde128_state t, const unsigned char* k);
 
 void shadow(shadow_state state);
-
+void sbox_layer(uint32_t* state);
+void dbox_mls_layer(shadow_state state);
+void lbox(uint32_t* x, uint32_t* y);
 
 #endif //_H_PRIMITIVES_H_
