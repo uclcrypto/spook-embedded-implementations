@@ -13,6 +13,9 @@ SHADOW_TYPE?=shadow_32bit
 #SHADOW_TYPE?=shadow_256bit
 #SHADOW_TYPE?=shadow_512bit
 
+CFLAGS+=-DDBOX8=0 # dbox over 32 bit
+#CFLAGS+=-DDBOX8=1 # dbox over 8 bit
+
 ifeq "$(CLYDE_TYPE)" "clyde_64bit"
     CFLAGS+=-mbmi2
 endif
