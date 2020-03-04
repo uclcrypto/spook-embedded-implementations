@@ -23,7 +23,7 @@
 #include <string.h>
 #include <stdint.h>
 #include "primitives.h"
-
+#include "primitives.c"
 #define CLYDE_128_NS 6                // Number of steps
 #define CLYDE_128_NR 2 * CLYDE_128_NS // Number of rounds
 
@@ -39,7 +39,7 @@
 	(DEST)[1] ^= ((LFSR)>>2 & 0x1); \
 	(DEST)[2] ^= ((LFSR)>>1 & 0x1); \
 	(DEST)[3] ^= ((LFSR) & 0x1); } while (0)
-
+// Apply a S-box layer to a Clyde-128 state.
 void clyde128_encrypt(clyde128_state state, const clyde128_state t, const unsigned char* k) {
 	// Key schedule
 	clyde128_state k_st;

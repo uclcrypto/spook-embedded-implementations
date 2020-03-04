@@ -1,7 +1,7 @@
 #include "primitives.h"
 
 // Apply a S-box layer to a Clyde-128 state.
-void sbox_layer(uint32_t* state) {
+static void sbox_layer(uint32_t* state) {
   uint32_t y1 = (state[0] & state[1]) ^ state[2];
   uint32_t y0 = (state[3] & state[0]) ^ state[1];
   uint32_t y3 = (y1 & state[3]) ^ state[0];
@@ -13,7 +13,7 @@ void sbox_layer(uint32_t* state) {
 }
 
 // Apply a L-box to a pair of Clyde-128 rows.
-void lbox(uint32_t* x, uint32_t* y) {
+static void lbox(uint32_t* x, uint32_t* y) {
   uint32_t a, b, c, d;
   a = *x ^ ROT32(*x, 12);
   b = *y ^ ROT32(*y, 12);
@@ -34,17 +34,19 @@ void lbox(uint32_t* x, uint32_t* y) {
 #if (DBOX==8)
 static uint32_t xtime(uint32_t x) {
     uint32_t x_msk1 = x & 0x80808080;
-    uint32_t x_msk2 = x & 0xefefefef;
-    return ((x_msk2 << 1) | (x_msk1 >> 7)) ^ (x_msk1 >> (8-1));
+    uint32_t x_msk2 = x & 0x7f7f7f7f;
+    return ((x_msk2 << 1) | (x_msk1 >> 7)) ^ (x_msk1 >> (5));
 }
 #elif (DBOX==32)
 static uint32_t xtime(uint32_t x) {
-    return ((x << 1)  | (x >> 31)) ^ (x >> (31-8));
+    uint32_t tmp = ROTL(x,1);
+    return tmp ^ ((x >> (31-8))& ~0xff);
 }
 #endif
 
+
 // Apply a D-box layer to a Shadow state.
-void dbox_mls_layer(shadow_state state) {
+static void dbox_mls_layer(shadow_state state,uint32_t *lfsr) {
   for (unsigned int row = 0; row < LS_ROWS; row++) {
 #if SMALL_PERM
     uint32_t x = state[0][row];
@@ -91,7 +93,10 @@ void dbox_mls_layer(shadow_state state) {
     state[1][row] = w2;
     state[2][row] = w3 ^ w4;
     state[3][row] = w4;
+
+    state[0][row] ^= ROTL(*lfsr,8*row);
 #endif // DBOX
 #endif // SMALL_PERM
   }
+
 }

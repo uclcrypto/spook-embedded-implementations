@@ -1,4 +1,4 @@
-/* MIT License
+/* MIT 
  *
  * Copyright (c) 2019 Gaëtan Cassiers
  *
@@ -24,13 +24,12 @@
 #include <string.h>
 #include <stdint.h>
 #include "primitives.h"
+#include "primitives.c"
 
 #define CLYDE_128_NS 6                // Number of steps
 #define CLYDE_128_NR 2 * CLYDE_128_NS // Number of rounds
 #define SHADOW_NS 6                   // Number of steps
-#define SHADOW_NR 2 * SHADOW_NS       // Number of rounds
-
-#define ROTL(x, n) ((x << n) | (x >> ((32-n) & 32)))
+#define SHADOW_NR 2 * SHADOW_NS       // Number of roundsv
 
 #if (SHCST==1)
 #define XORCST(DEST, LFSR, SHIFT) do { \
@@ -40,10 +39,11 @@
     (DEST)[3] ^= ((LFSR) & 0x1)<< (SHIFT); } while (0)
 #elif (SHCST==8)
 #define XORCST(DEST, LFSR, SHIFT) do { \
-    (DEST)[0] ^= (LFSR) & (0xff << (8*(SHIFT))); } while (0)
+    (DEST)[0] ^= (LFSR) & (0xff << (8*(SHIFT))); } while(0)
 #elif (SHCST==32)
 #define XORCST(DEST, LFSR, SHIFT) do { \
-    (DEST)[0] ^= ROTL((LFSR), (8*(SHIFT))); } while (0)
+    (DEST)[0] ^= (LFSR); \
+    (LFSR) = ROTL((LFSR),8); } while (0)
 #endif
 
 static uint32_t update_lfsr(uint32_t lfsr) {
@@ -55,6 +55,7 @@ static uint32_t update_lfsr(uint32_t lfsr) {
 void shadow(shadow_state state) {
     uint32_t lfsr = 0x8;
     for (unsigned int s = 0; s < SHADOW_NS; s++) {
+        #pragma GCC unroll 0
         for (unsigned int b = 0; b < MLS_BUNDLES; b++) {
             sbox_layer(state[b]);
             lbox(&state[b][0], &state[b][1]);
@@ -65,10 +66,7 @@ void shadow(shadow_state state) {
 
         lfsr = update_lfsr(lfsr);
 
-        dbox_mls_layer(state);
-        for (unsigned int b = 0; b < MLS_BUNDLES; b++) {
-            XORCST(state[b], lfsr, b);
-        }
+        dbox_mls_layer(state,&lfsr);
 
         lfsr = update_lfsr(lfsr);
     }

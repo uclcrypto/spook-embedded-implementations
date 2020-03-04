@@ -29,15 +29,15 @@
 // Size of the P parameter
 #define P_NBYTES 16
 
-void s1p_encrypt(unsigned char *c, unsigned long long *clen,
-                 const unsigned char *ad, unsigned long long adlen,
-                 const unsigned char *m, unsigned long long mlen,
+void s1p_encrypt(unsigned char *c,  unsigned int *clen,
+                 const unsigned char *ad,  unsigned int adlen,
+                 const unsigned char *m,  unsigned int mlen,
                  const unsigned char *k, const unsigned char *p,
                  const unsigned char *n);
 
-int s1p_decrypt(unsigned char *m, unsigned long long *mlen,
-                const unsigned char *ad, unsigned long long adlen,
-                const unsigned char *c, unsigned long long clen,
+int s1p_decrypt(unsigned char *m,  unsigned int *mlen,
+                const unsigned char *ad,  unsigned int adlen,
+                const unsigned char *c,  unsigned int clen,
                 const unsigned char *k, const unsigned char *p,
                 const unsigned char *n);
 
