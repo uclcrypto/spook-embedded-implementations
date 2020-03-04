@@ -30,18 +30,26 @@
 #define SHADOW_NS 6                   // Number of steps
 #define SHADOW_NR 2 * SHADOW_NS       // Number of rounds
 
+#define ROTL(x, n) ((x << n) | (x >> ((32-n) & 32)))
 
-#define XORLSS(DEST, OP, SHIFT) do { \
-    (DEST)[0] ^= ((OP)[0] << (SHIFT)); \
-    (DEST)[1] ^= ((OP)[1] << (SHIFT)); \
-    (DEST)[2] ^= ((OP)[2] << (SHIFT)); \
-    (DEST)[3] ^= ((OP)[3] << (SHIFT)); } while (0)
-
+#if (SHCST==1)
 #define XORCST(DEST, LFSR, SHIFT) do { \
     (DEST)[0] ^= ((LFSR)>>3 & 0x1)<< (SHIFT); \
     (DEST)[1] ^= ((LFSR)>>2 & 0x1)<< (SHIFT); \
     (DEST)[2] ^= ((LFSR)>>1 & 0x1)<< (SHIFT); \
     (DEST)[3] ^= ((LFSR) & 0x1)<< (SHIFT); } while (0)
+#elif (SHCST==8)
+#define XORCST(DEST, LFSR, SHIFT) do { \
+    (DEST)[0] ^= (LFSR) & (0xff << (8*(SHIFT))); } while (0)
+#elif (SHCST==32)
+#define XORCST(DEST, LFSR, SHIFT) do { \
+    (DEST)[0] ^= ROTL((LFSR), (8*(SHIFT))); } while (0)
+#endif
+
+static uint32_t update_lfsr(uint32_t lfsr) {
+        uint32_t b = lfsr & 0x1;
+        return (lfsr^(b<<3) | b<<4)>>1;
+}
 
 // Shadow permutation. Updates state.
 void shadow(shadow_state state) {
@@ -55,14 +63,13 @@ void shadow(shadow_state state) {
             sbox_layer(state[b]);
         }
 
-        uint32_t b = lfsr & 0x1;
-        lfsr = (lfsr^(b<<3) | b<<4)>>1;	// update LFSR
+        lfsr = update_lfsr(lfsr);
 
         dbox_mls_layer(state);
         for (unsigned int b = 0; b < MLS_BUNDLES; b++) {
             XORCST(state[b], lfsr, b);
         }
-        b = lfsr & 0x1;
-        lfsr = (lfsr^(b<<3) | b<<4)>>1; // update LFSR
+
+        lfsr = update_lfsr(lfsr);
     }
 }

@@ -17,6 +17,10 @@ SHADOW_TYPE?=shadow_32bit
 #CFLAGS+=-DDBOX=8 # dbox over 8 bit
 CFLAGS+=-DDBOX=1 # dbox over 1 bit
 
+CFLAGS+=-DSHCST=1 # old cst addition
+#CFLAGS+=-DSHCST=8 # 8 bit per bundle (on 1 word)
+#CFLAGS+=-DSHCST=32 # 32 bits per bundle (on 1 word)
+
 ifeq "$(CLYDE_TYPE)" "clyde_64bit"
     CFLAGS+=-mbmi2
 endif
