@@ -31,15 +31,17 @@ void lbox(uint32_t* x, uint32_t* y) {
   *y = b;
 }
 
+#if (DBOX==8)
 static uint32_t xtime(uint32_t x) {
-#if (DBOX8==1)
     uint32_t x_msk1 = x & 0x80808080;
     uint32_t x_msk2 = x & 0xefefefef;
     return ((x_msk2 << 1) | (x_msk1 >> 7)) ^ (x_msk1 >> (8-1));
-#else
-    return ((x << 1)  | (x >> 31)) ^ (x >> (31-8));
-#endif
 }
+#elif (DBOX==32)
+static uint32_t xtime(uint32_t x) {
+    return ((x << 1)  | (x >> 31)) ^ (x >> (31-8));
+}
+#endif
 
 // Apply a D-box layer to a Shadow state.
 void dbox_mls_layer(shadow_state state) {
@@ -51,6 +53,18 @@ void dbox_mls_layer(shadow_state state) {
     state[0][row] = x ^ y ^ z;
     state[1][row] = x ^ z;
     state[2][row] = x ^ y;
+#else
+#if (DBOX==1)
+    uint32_t w = state[0][row];
+    uint32_t x = state[1][row];
+    uint32_t y = state[2][row];
+    uint32_t z = state[3][row];
+    uint32_t u = w^x;
+    uint32_t v = y^z;
+    state[0][row] = x^v;
+    state[1][row] = w^v;
+    state[2][row] = u^z;
+    state[3][row] = u^y;
 #else
     uint32_t x1 = state[0][row];
     uint32_t x2 = state[1][row];
@@ -77,6 +91,7 @@ void dbox_mls_layer(shadow_state state) {
     state[1][row] = w2;
     state[2][row] = w3 ^ w4;
     state[3][row] = w4;
+#endif // DBOX
 #endif // SMALL_PERM
   }
 }
