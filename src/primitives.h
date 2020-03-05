@@ -19,11 +19,11 @@
 
 #define ROTL(x, n) ((x << n) | (x >> ((32-n) & 31)))
 #ifndef SHCST
-#define SHCST -1
+#define SHCST 1
 #endif
 
 #ifndef DBOX
-#define DBOX -1
+#define DBOX 1
 #endif
 
 #if SMALL_PERM

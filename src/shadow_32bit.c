@@ -24,6 +24,8 @@
 #include <string.h>
 #include <stdint.h>
 #include "primitives.h"
+
+#define SHADOW
 #include "primitives.c"
 
 #define CLYDE_128_NS 6                // Number of steps
@@ -31,43 +33,24 @@
 #define SHADOW_NS 6                   // Number of steps
 #define SHADOW_NR 2 * SHADOW_NS       // Number of roundsv
 
-#if (SHCST==1)
-#define XORCST(DEST, LFSR, SHIFT) do { \
-    (DEST)[0] ^= ((LFSR)>>3 & 0x1)<< (SHIFT); \
-    (DEST)[1] ^= ((LFSR)>>2 & 0x1)<< (SHIFT); \
-    (DEST)[2] ^= ((LFSR)>>1 & 0x1)<< (SHIFT); \
-    (DEST)[3] ^= ((LFSR) & 0x1)<< (SHIFT); } while (0)
-#elif (SHCST==8)
-#define XORCST(DEST, LFSR, SHIFT) do { \
-    (DEST)[0] ^= (LFSR) & (0xff << (8*(SHIFT))); } while(0)
-#elif (SHCST==32)
-#define XORCST(DEST, LFSR, SHIFT) do { \
-    (DEST)[0] ^= (LFSR); \
-    (LFSR) = ROTL((LFSR),8); } while (0)
-#endif
-
-static uint32_t update_lfsr(uint32_t lfsr) {
-        uint32_t b = lfsr & 0x1;
-        return (lfsr^(b<<3) | b<<4)>>1;
-}
-
 // Shadow permutation. Updates state.
 void shadow(shadow_state state) {
-    uint32_t lfsr = 0x8;
+    uint32_t lfsr = 0x0f0f0f0f;
+    set_poly(0x91);
     for (unsigned int s = 0; s < SHADOW_NS; s++) {
         #pragma GCC unroll 0
-        for (unsigned int b = 0; b < MLS_BUNDLES; b++) {
+        for (unsigned int b = 0; b < MLS_BUNDLES; b++){
             sbox_layer(state[b]);
             lbox(&state[b][0], &state[b][1]);
             lbox(&state[b][2], &state[b][3]);
-            XORCST(state[b], lfsr, b);
+
+            state[b][0] ^= lfsr;
+            lfsr = xtime(lfsr);
             sbox_layer(state[b]);
         }
 
-        lfsr = update_lfsr(lfsr);
 
         dbox_mls_layer(state,&lfsr);
 
-        lfsr = update_lfsr(lfsr);
     }
 }
