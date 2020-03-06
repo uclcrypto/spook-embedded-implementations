@@ -19,9 +19,9 @@
 #endif
 
 // Spook encryption.
-int crypto_aead_encrypt(unsigned char* c,  unsigned int* clen,
-                        const unsigned char* m,  unsigned int mlen,
-                        const unsigned char* ad,  unsigned int adlen,
+int crypto_aead_encrypt(unsigned char* c,  unsigned long long* clen,
+                        const unsigned char* m,  unsigned long long mlen,
+                        const unsigned char* ad,  unsigned long long adlen,
                         const unsigned char* nsec UNUSED,
                         const unsigned char* npub, const unsigned char* k) {
   unsigned char p[P_NBYTES];
@@ -32,10 +32,10 @@ int crypto_aead_encrypt(unsigned char* c,  unsigned int* clen,
 }
 
 // Spook encryption.
-int crypto_aead_decrypt(unsigned char* m,  unsigned int* mlen,
+int crypto_aead_decrypt(unsigned char* m,  unsigned long long* mlen,
                         unsigned char* nsec UNUSED, const unsigned char* c,
-                         unsigned int clen, const unsigned char* ad,
-                         unsigned int adlen, const unsigned char* npub,
+                         unsigned long long clen, const unsigned char* ad,
+                         unsigned long long adlen, const unsigned char* npub,
                         const unsigned char* k) {
   unsigned char p[P_NBYTES];
   const unsigned char* k_priv;
