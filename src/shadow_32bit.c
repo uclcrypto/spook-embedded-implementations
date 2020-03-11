@@ -32,11 +32,10 @@
 #define CLYDE_128_NR 2 * CLYDE_128_NS // Number of rounds
 #define SHADOW_NS 6                   // Number of steps
 #define SHADOW_NR 2 * SHADOW_NS       // Number of roundsv
-
-// Shadow permutation. Updates state.
 void shadow(shadow_state state) {
-    uint32_t lfsr = 0x0f0f0f0f;
-    set_poly(0x91);
+    uint32_t lfsr =0xf8737400;	// LFSR for round constant
+    set_poly_xtime(0x101);
+    set_poly_lfsr(0xc5);
     for (unsigned int s = 0; s < SHADOW_NS; s++) {
         #pragma GCC unroll 0
         for (unsigned int b = 0; b < MLS_BUNDLES; b++){
@@ -44,12 +43,10 @@ void shadow(shadow_state state) {
             lbox(&state[b][0], &state[b][1]);
             lbox(&state[b][2], &state[b][3]);
 
-            state[b][0] ^= lfsr;
-            lfsr = xtime(lfsr);
+            state[b][1] ^= lfsr;
+            lfsr = update_lfsr(lfsr);
             sbox_layer(state[b]);
         }
-
-
         dbox_mls_layer(state,&lfsr);
 
     }

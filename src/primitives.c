@@ -1,6 +1,7 @@
 #include "primitives.h"
 #ifdef SHADOW
 static uint32_t lfsr_poly;
+static uint32_t xtime_poly;
 #endif
 
 // Apply a S-box layer to a Clyde-128 state.
@@ -35,54 +36,55 @@ static void lbox(uint32_t* x, uint32_t* y) {
 }
 
 #ifdef SHADOW
-void set_poly(uint32_t lol){
-    lfsr_poly = lol;
+void set_poly_lfsr(uint32_t l){
+    lfsr_poly = l;
+}
+void set_poly_xtime(uint32_t l){
+    xtime_poly = l;
 }
 
-
-static uint32_t xtime(uint32_t x) {
+static uint32_t update_lfsr(uint32_t x) {
     int32_t tmp1 = x;
     uint32_t tmp =  (tmp1 >>31) & lfsr_poly;
     return (x<<1) ^ tmp;
 }
 
+static uint32_t xtime(uint32_t x) {
+    int32_t tmp1 = x;
+    uint32_t tmp =  (tmp1 >>31) & xtime_poly;
+    return (x<<1) ^ tmp;
+}
+
 // Apply a D-box layer to a Shadow state.
 static void dbox_mls_layer(shadow_state state,uint32_t *lfsr) {
-  for (unsigned int row = 0; row < LS_ROWS; row++) {
+for (unsigned int row = 0; row < LS_ROWS; row++) {
 #if SMALL_PERM
-    uint32_t x = state[0][row];
-    uint32_t y = state[1][row];
-    uint32_t z = state[2][row];
-    state[0][row] = x ^ y ^ z;
-    state[1][row] = x ^ z;
-    state[2][row] = x ^ y;
-#else
     uint32_t x1 = state[0][row];
     uint32_t x2 = state[1][row];
     uint32_t x3 = state[2][row];
-    uint32_t x4 = state[3][row];
 
-    uint32_t y1 = x2;
-    uint32_t y2 = x3 ^ x4;
-    uint32_t y3 = x4;
-    uint32_t y4 = x1 ^ x2;
+    uint32_t a = x1 ^ x3;
+    uint32_t b = a ^ x2;
+    uint32_t c = xtime(a) ^ (x1 ^ x2);
+    state[0][row] = a ^ c;
+    state[1][row] = b;
+    state[2][row] = c;
 
-    uint32_t z1 = y2;
-    uint32_t z2 = y3 ^ xtime(y4);
-    uint32_t z3 = y4;
-    uint32_t z4 = y1 ^ y2;
+    state[0][row] ^= *lfsr;
+    *lfsr = update_lfsr(*lfsr);
 
-    uint32_t t = xtime(z4);
-    uint32_t w1 = z2;
-    uint32_t w2 = z3 ^ t;
-    uint32_t w3 = t;
-    uint32_t w4 = z1 ^ xtime(z2);
+#else
 
-    state[0][row] = w1 ^ w2;
-    state[1][row] = w2;
-    state[2][row] = w3 ^ w4;
-    state[3][row] = w4;
-
+    state[0][row] ^= state[1][row];
+    state[2][row] ^= state[3][row];
+    state[1][row] ^= state[2][row];
+    state[3][row] ^= xtime(state[0][row]);
+    state[2][row] ^= xtime(state[3][row]);
+    state[1][row] = xtime(state[1][row]);
+    state[0][row] ^= state[1][row];
+    state[3][row] ^= state[0][row];
+    state[1][row] ^= state[2][row];
+    
     state[0][row] ^= *lfsr;
     *lfsr = xtime(*lfsr);
 #endif // SMALL_PERM

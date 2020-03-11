@@ -69,13 +69,14 @@ void init_keys(const unsigned char **k, unsigned char p[P_NBYTES],
 static void init_sponge_state(shadow_state state,
                               const unsigned char *k, const unsigned char *p,
                               const unsigned char *n) {
-  // init state
+// init state
   memset(state, 0, SHADOW_NBYTES);
-  memcpy(state[0], p, P_NBYTES);
-  memcpy(state[1], n, CRYPTO_NPUBBYTES);
-  // TBC
-  memcpy(state[MLS_BUNDLES-1], n, CRYPTO_NPUBBYTES);
-  clyde128_encrypt(state[MLS_BUNDLES-1], state[0], k);
+  memcpy(state[0], n, P_NBYTES);
+  memcpy(state[1], p, CRYPTO_NPUBBYTES);
+
+  memcpy(state[2], n, CRYPTO_NPUBBYTES);
+  clyde128_encrypt(state[0], state[1], k);
+
   // initial permutation
   shadow(state);
 }
