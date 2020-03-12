@@ -86,7 +86,7 @@ for (unsigned int row = 0; row < LS_ROWS; row++) {
     state[1][row] ^= state[2][row];
     
     state[0][row] ^= *lfsr;
-    *lfsr = xtime(*lfsr);
+    *lfsr = update_lfsr(*lfsr);
 #endif // SMALL_PERM
   }
 
