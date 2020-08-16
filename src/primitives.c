@@ -25,15 +25,13 @@
 
 #include "primitives.h"
 
-static uint32_t lfsr_poly;
-static uint32_t xtime_poly;
+static const uint32_t lfsr_poly = 0xc5;
+static const uint32_t xtime_poly = 0x101;
 
 static void sbox_layer(uint32_t* state);
 static void lbox(uint32_t* x, uint32_t* y);
 static uint32_t xtime(uint32_t x);
 static void dbox_mls_layer(shadow_state state,uint32_t *lfsr);
-void set_poly_lfsr(uint32_t l);
-void set_poly_xtime(uint32_t l);
 static uint32_t update_lfsr(uint32_t x);
 
 #define CLYDE_128_NS 6                // Number of steps
@@ -90,8 +88,6 @@ void clyde128_encrypt(clyde128_state state, const clyde128_state t, const unsign
 #define SHADOW_NR 2 * SHADOW_NS       // Number of roundsv
 void shadow(shadow_state state) {
     uint32_t lfsr =0xf8737400;	// LFSR for round constant
-    set_poly_xtime(0x101);
-    set_poly_lfsr(0xc5);
     for (unsigned int s = 0; s < SHADOW_NS; s++) {
         #pragma GCC unroll 0
         for (unsigned int b = 0; b < MLS_BUNDLES; b++){
@@ -139,13 +135,6 @@ static void lbox(uint32_t* x, uint32_t* y) {
   *y = b;
 }
 
-void set_poly_lfsr(uint32_t l){
-    lfsr_poly = l;
-}
-void set_poly_xtime(uint32_t l){
-    xtime_poly = l;
-}
-
 static uint32_t update_lfsr(uint32_t x) {
     int32_t tmp1 = x;
     uint32_t tmp =  (tmp1 >>31) & lfsr_poly;
@@ -187,7 +176,7 @@ for (unsigned int row = 0; row < LS_ROWS; row++) {
     state[0][row] ^= state[1][row];
     state[3][row] ^= state[0][row];
     state[1][row] ^= state[2][row];
-    
+
     state[0][row] ^= *lfsr;
     *lfsr = update_lfsr(*lfsr);
 #endif // SMALL_PERM
