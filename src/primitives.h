@@ -18,13 +18,6 @@
 #define CLYDE128_NBYTES 16
 
 #define ROTL(x, n) ((x << n) | (x >> ((32-n) & 31)))
-#ifndef SHCST
-#define SHCST 1
-#endif
-
-#ifndef DBOX
-#define DBOX 1
-#endif
 
 #if SMALL_PERM
 #define SHADOW_NBYTES 48
@@ -45,8 +38,5 @@ void clyde128_encrypt(clyde128_state state,
                       const clyde128_state t, const unsigned char* k);
 
 void shadow(shadow_state state);
-static void sbox_layer(uint32_t* state);
-static void dbox_mls_layer(shadow_state state,uint32_t *lfsr);
-static void lbox(uint32_t* x, uint32_t* y);
 
 #endif //_H_PRIMITIVES_H_
